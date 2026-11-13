@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash",
+      "WebFetch",
+      "WebSearch",
+      "Edit(/.claude/**)",
+      "Edit(/CLAUDE.md)",
+      "Edit(/config.json)",
+      "Edit(/plan/**)"
+    ],
+    "allow": [
+      "mcp__plugin_endurance-coach_coach__summary",
+      "mcp__plugin_endurance-coach_coach__save_plan",
+      "mcp__plugin_endurance-coach_coach__push_preview"
+    ],
+    "ask": [
+      "mcp__plugin_endurance-coach_coach__push_apply",
+      "mcp__plugin_endurance-coach_coach__add_event",
+      "mcp__plugin_endurance-coach_coach__remove_event"
+    ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && git add -A && (git diff --cached --quiet || git commit -qm 'coach session')"
+          }
+        ]
+      }
+    ]
+  }
+}

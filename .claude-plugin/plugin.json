@@ -1,0 +1,20 @@
+{
+  "name": "endurance-coach",
+  "description": "Personal running and cycling coach on top of intervals.icu",
+  "version": "0.1.0",
+  "author": {
+    "name": "Mikhail Novikov",
+    "url": "https://github.com/thepocp"
+  },
+  "homepage": "https://github.com/thepocp/endurance-coach",
+  "repository": "https://github.com/thepocp/endurance-coach",
+  "license": "MIT",
+  "keywords": [
+    "training",
+    "running",
+    "cycling",
+    "intervals.icu",
+    "garmin",
+    "coach"
+  ]
+}

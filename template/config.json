@@ -1,0 +1,18 @@
+{
+  "plan": {
+    "maxWeeklyHours": 8,
+    "minEasyShare": 0.8,
+    "maxLoadRatio": 1.3,
+    "deloadLoadRatio": 0.8,
+    "maxHardWorkouts": 2,
+    "maxLongRunShare": 0.4,
+    "longRunFromMinutes": 60,
+    "loadingWeeksBeforeDeload": 3
+  },
+  "readiness": {
+    "baselineDays": 60,
+    "deviationSd": 1,
+    "shortSleepHours": 6,
+    "deepFatigueFormRatio": -0.3
+  }
+}

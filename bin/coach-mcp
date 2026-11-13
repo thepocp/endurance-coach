@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+root=$(cd "$(dirname "$0")/.." && pwd)
+ICU_API_KEY=$(security find-generic-password -s endurance-coach -a intervals.icu -w)
+export ICU_API_KEY
+exec deno run --no-prompt --allow-net=intervals.icu \
+  --allow-env=ICU_API_KEY,CLAUDE_PROJECT_DIR \
+  --allow-read="$CLAUDE_PROJECT_DIR" --allow-write="$CLAUDE_PROJECT_DIR/plan" \
+  --config "$root/deno.json" "$root/src/mcp.ts"
