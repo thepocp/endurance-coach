@@ -2,8 +2,9 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { desiredEvents, diffEvents, isOwn, OWN_PREFIX } from "./calendar.ts";
+import { planVsActual } from "./compliance.ts";
 import { loadConfig } from "./config.ts";
-import { addDays } from "./dates.ts";
+import { addDays, weekStart } from "./dates.ts";
 import {
   createEvents,
   deleteEvents,
@@ -30,6 +31,7 @@ function requireEnv(name: string): string {
 const apiKey = requireEnv("ICU_API_KEY");
 const projectDir = requireEnv("CLAUDE_PROJECT_DIR");
 
+const COMPARED_WEEKS = 4;
 const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const planPath = (week: string) => `${projectDir}/plan/${week}.json`;
 const reply = (value: unknown, isError = false) => ({
@@ -39,6 +41,18 @@ const reply = (value: unknown, isError = false) => ({
 
 async function readPlan(week: string): Promise<Plan> {
   return Plan.parse(JSON.parse(await Deno.readTextFile(planPath(week))));
+}
+
+async function recentPlans(today: string): Promise<Plan[]> {
+  const plans: Plan[] = [];
+  for (let i = COMPARED_WEEKS - 1; i >= 0; i--) {
+    try {
+      plans.push(await readPlan(addDays(weekStart(today), -7 * i)));
+    } catch (e) {
+      if (!(e instanceof Deno.errors.NotFound)) throw e;
+    }
+  }
+  return plans;
 }
 
 async function previousWeeksDeload(week: string): Promise<boolean[]> {
@@ -73,11 +87,17 @@ const server = new McpServer({ name: "endurance-coach", version: "0.1.0" });
 
 server.registerTool("summary", {
   description:
-    "Fresh training summary from intervals.icu: readiness, fitness, weekly totals per sport, recent activities, races, time off and planned workouts.",
+    "Fresh training summary from intervals.icu: readiness, fitness, weekly totals per sport, recent activities, races, time off, planned workouts, and saved plans of the last weeks compared with what was done.",
   annotations: { readOnlyHint: true },
 }, async () => {
   const { readiness } = await loadConfig(projectDir);
-  return reply(buildSummary(await fetchSnapshot(apiKey), readiness));
+  const snapshot = await fetchSnapshot(apiKey);
+  return reply({
+    ...buildSummary(snapshot, readiness),
+    planVsActual: (await recentPlans(snapshot.today)).map((plan) =>
+      planVsActual(plan, snapshot.activities, snapshot.today)
+    ),
+  });
 });
 
 server.registerTool("save_plan", {

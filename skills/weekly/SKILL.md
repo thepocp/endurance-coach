@@ -7,9 +7,10 @@ description: Weekly review and plan for the coming week. Use on Sunday or whenev
 
 1. Call `summary`. Read `profile.md`, the last journal entries and the previous
    plan in `plan/`.
-2. Review the finished week against its plan: what was done, skipped or changed,
-   how load, easy share, RPE and readiness moved. Missed key sessions are not
-   made up later.
+2. Review the finished week against its plan using `planVsActual` from
+   `summary`: what was done, missed or added, how planned and actual time and
+   load compare, how load, easy share, RPE and readiness moved. Missed key
+   sessions are not made up later.
 3. If days remain in the current week and it has no saved plan, plan those days
    first as the current week's plan (workouts only from today on), then continue
    with the coming week. Each week is saved and pushed separately.
