@@ -9,8 +9,8 @@ to your watch.
 
 ## How it works
 
-- **Plugin (this repository)**: an MCP server and three skills. No personal data
-  lives here.
+- **Plugin (this repository)**: an MCP server, the coaching rules it sends to
+  the model and three skills. No personal data lives here.
 - **Data folder (yours, private)**: athlete profile, training rules, week plans
   and a decision journal, under git. Coach sessions run in this folder.
 
