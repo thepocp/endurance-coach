@@ -1,11 +1,13 @@
 import { addDays, weekStart } from "./dates.ts";
-import type { ReadinessRules } from "./config.ts";
+import type { Goals, ReadinessRules } from "./config.ts";
 import type { Activity, Snapshot } from "./intervals.ts";
 import { EASY_ZONES } from "./plan.ts";
 import { assessReadiness } from "./readiness.ts";
 
 const RECENT_DAYS = 14;
 const PLANNED_DAYS = 14;
+// Body weight swings by a kilogram from day to day, so it is read as an average.
+const WEIGHT_AVERAGE_DAYS = 7;
 const OFF_CATEGORIES = ["HOLIDAY", "SICK", "INJURED"];
 
 type Sport = "run" | "ride" | "other";
@@ -22,6 +24,8 @@ const minutes = (secs: number | null | undefined) =>
 const km = (meters: number | null | undefined) =>
   Math.round((meters || 0) / 100) / 10;
 const round1 = (value: number) => Math.round(value * 10) / 10;
+const mean = (values: number[]) =>
+  values.reduce((a, b) => a + b, 0) / values.length;
 
 function emptyTotals() {
   return { sessions: 0, minutes: 0, km: 0, load: 0, longestMinutes: 0 };
@@ -57,7 +61,7 @@ function summarizeWeek(activities: Activity[]) {
 export function buildSummary(
   { today, athlete, activities, wellness, events }: Snapshot,
   rules: ReadinessRules,
-  vo2maxGoal?: number,
+  goals: Goals = {},
 ) {
   const byWeek = new Map<string, Activity[]>();
   for (const a of activities) {
@@ -74,6 +78,25 @@ export function buildSummary(
     typeof w.vo2max === "number" ? [{ date: w.id, value: w.vo2max }] : []
   );
   const latestVo2max = vo2max.at(-1);
+  const weights = wellness.flatMap((w) =>
+    typeof w.weight === "number" ? [{ date: w.id, kg: w.weight }] : []
+  );
+  const latestWeight = weights.at(-1);
+  const weight = latestWeight && {
+    latest: latestWeight,
+    first: mean(
+      weights
+        .filter((w) => w.date < addDays(weights[0].date, WEIGHT_AVERAGE_DAYS))
+        .map((w) => w.kg),
+    ),
+    now: mean(
+      weights
+        .filter((w) =>
+          w.date > addDays(latestWeight.date, -WEIGHT_AVERAGE_DAYS)
+        )
+        .map((w) => w.kg),
+    ),
+  };
 
   return {
     today,
@@ -88,8 +111,17 @@ export function buildSummary(
       ...latestVo2max,
       since: vo2max[0].date,
       change: round1(latestVo2max.value - vo2max[0].value),
-      goal: vo2maxGoal,
-      toGoal: vo2maxGoal && round1(vo2maxGoal - latestVo2max.value),
+      goal: goals.vo2max,
+      toGoal: goals.vo2max && round1(goals.vo2max - latestVo2max.value),
+    },
+    weight: weight && {
+      date: weight.latest.date,
+      kg: weight.latest.kg,
+      weekAverageKg: round1(weight.now),
+      since: weights[0].date,
+      change: round1(weight.now - weight.first),
+      goal: goals.weightKg,
+      toGoal: goals.weightKg && round1(goals.weightKg - weight.now),
     },
     thresholds: athlete.sportSettings
       .filter((s) => s.types.some((t) => sportOf(t) !== "other"))

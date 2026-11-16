@@ -37,9 +37,11 @@ const snapshot: Snapshot = {
     },
   ],
   wellness: [
-    { id: "2026-10-28", vo2max: 46 },
-    { id: "2026-11-10", vo2max: 47.5 },
-    { id: "2026-11-12", ctl: 28, atl: 12, rampRate: -4.2 },
+    { id: "2026-10-26", weight: 94 },
+    { id: "2026-10-28", vo2max: 46, weight: 93 },
+    { id: "2026-11-05", weight: 92.5 },
+    { id: "2026-11-10", vo2max: 47.5, weight: 92 },
+    { id: "2026-11-12", ctl: 28, atl: 12, rampRate: -4.2, weight: 91 },
   ],
   events: [
     {
@@ -129,12 +131,24 @@ Deno.test("fitness comes from the latest wellness row that has it", () => {
 });
 
 Deno.test("VO2max is the last reading with its change over the history and the distance to the goal", () => {
-  assertEquals(buildSummary(snapshot, rules, 60).vo2max, {
+  assertEquals(buildSummary(snapshot, rules, { vo2max: 60 }).vo2max, {
     date: "2026-11-10",
     value: 47.5,
     since: "2026-10-28",
     change: 1.5,
     goal: 60,
     toGoal: 12.5,
+  });
+});
+
+Deno.test("weight is read as a seven-day average, first week against last, with the distance to the goal", () => {
+  assertEquals(buildSummary(snapshot, rules, { weightKg: 85 }).weight, {
+    date: "2026-11-12",
+    kg: 91,
+    weekAverageKg: 91.5,
+    since: "2026-10-26",
+    change: -2,
+    goal: 85,
+    toGoal: -6.5,
   });
 });

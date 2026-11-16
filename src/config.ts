@@ -26,11 +26,13 @@ export const Config = z.strictObject({
   }),
   goals: z.strictObject({
     vo2max: z.number().positive().optional(),
+    weightKg: z.number().positive().optional(),
   }).optional(),
 });
 
 export type PlanRules = z.infer<typeof Config>["plan"];
 export type ReadinessRules = z.infer<typeof Config>["readiness"];
+export type Goals = NonNullable<z.infer<typeof Config>["goals"]>;
 
 export async function loadConfig(projectDir: string) {
   return Config.parse(

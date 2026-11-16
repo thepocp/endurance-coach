@@ -14,14 +14,14 @@ to your watch.
 - **Data folder (yours, private)**: athlete profile, training rules, week plans
   and a decision journal, under git. Coach sessions run in this folder.
 
-| Tool           | What it does                                                                   | Permission |
-| -------------- | ------------------------------------------------------------------------------ | ---------- |
-| `summary`      | Readiness, fitness, VO2max, weekly totals, races, time off, plan versus actual | allowed    |
-| `save_plan`    | Validates a week plan and saves it only if it passes                           | allowed    |
-| `push_preview` | Shows the calendar changes for a saved plan                                    | allowed    |
-| `push_apply`   | Applies exactly the previewed changes                                          | asks       |
-| `add_event`    | Adds a race or time off                                                        | asks       |
-| `remove_event` | Removes an event the coach created                                             | asks       |
+| Tool           | What it does                                                                           | Permission |
+| -------------- | -------------------------------------------------------------------------------------- | ---------- |
+| `summary`      | Readiness, fitness, VO2max, weight, weekly totals, races, time off, plan versus actual | allowed    |
+| `save_plan`    | Validates a week plan and saves it only if it passes                                   | allowed    |
+| `push_preview` | Shows the calendar changes for a saved plan                                            | allowed    |
+| `push_apply`   | Applies exactly the previewed changes                                                  | asks       |
+| `add_event`    | Adds a race or time off                                                                | asks       |
+| `remove_event` | Removes an event the coach created                                                     | asks       |
 
 Skills: `/endurance-coach:weekly`, `/endurance-coach:today`,
 `/endurance-coach:replan`.
@@ -91,8 +91,10 @@ cannot.
 | `readiness.shortSleepHours`      | Sleep below this raises a flag                                    |
 | `readiness.deepFatigueFormRatio` | Form (CTL minus ATL) relative to CTL that raises a flag           |
 | `goals.vo2max`                   | Optional VO2max target, `summary` reports the distance to it      |
+| `goals.weightKg`                 | Optional body weight target, reported the same way                |
 
-VO2max is the value your watch syncs to intervals.icu wellness.
+VO2max and weight are the values synced to intervals.icu wellness. Weight is
+read as a seven-day average.
 
 Run volume is capped by the same load ratio against your recent weekly run
 minutes. Limits are recomputed from fresh data on every save, so they grow as

@@ -16,6 +16,8 @@ off) are in English unless `profile.md` says otherwise.
 - `summary.vo2max` is the watch estimate: the last reading, its change over the
   history window and, when the athlete set a goal, the distance to it. A missing
   field means the watch does not sync it.
+- `summary.weight` is the seven-day average of the synced body weight, its
+  change over the history window and the distance to the goal weight.
 - Races, illness, injury and holidays live in the intervals.icu calendar and
   arrive in `summary`. The athlete may add them in intervals.icu or ask you to
   add them with `add_event`. You can remove only events you created.
@@ -33,6 +35,12 @@ off) are in English unless `profile.md` says otherwise.
   feel for cycling, because heart rate lags. Longer efforts and easy sessions
   are targeted by heart rate.
 - Respect the fixed commitments and constraints in `profile.md`.
+- Plan for the current weight, not the goal weight. While the athlete is above
+  the goal, run volume grows more cautiously than the limits allow and extra
+  volume goes to the bike. Weight comes down through easy volume and food, never
+  through added intensity or sessions meant to burn calories.
+- Weight falling while readiness, RPE or feel get worse means under-fuelling:
+  cut intensity before volume and tell the athlete to eat more.
 - Pain, illness or a red readiness day means rest or easy movement. Suggest
   seeing a doctor when symptoms warrant it.
 
