@@ -8,7 +8,12 @@ const snapshot: Snapshot = {
   today: "2026-11-13",
   athlete: {
     timezone: "Europe/Berlin",
-    sportSettings: [{ types: ["Run", "TrailRun"], lthr: 165, max_hr: 185 }],
+    sportSettings: [{
+      types: ["Run", "TrailRun"],
+      lthr: 165,
+      max_hr: 185,
+      updated: "2026-09-01T10:00:00.000+00:00",
+    }],
   },
   activities: [
     {
@@ -37,6 +42,7 @@ const snapshot: Snapshot = {
     },
   ],
   wellness: [
+    { id: "2026-10-14", weight: 95.5 },
     { id: "2026-10-26", weight: 94 },
     { id: "2026-10-28", vo2max: 46, weight: 93 },
     { id: "2026-11-05", weight: 92.5 },
@@ -81,6 +87,7 @@ const snapshot: Snapshot = {
 };
 const rules = Config.parse(template).readiness;
 const summary = buildSummary(snapshot, rules);
+const withGoals = buildSummary(snapshot, rules, { vo2max: 60, weightKg: 85 });
 
 Deno.test("activities are grouped into Monday-based weeks per sport, empty weeks included", () => {
   assertEquals(summary.weeks.map((w) => w.week), [
@@ -95,6 +102,7 @@ Deno.test("activities are grouped into Monday-based weeks per sport, empty weeks
     km: 4.5,
     load: 20,
     longestMinutes: 30,
+    hrZoneMinutes: [25, 5],
   });
   assertEquals(week.ride.minutes, 60);
   assertEquals(week.hrZoneMinutes, [85, 5]);
@@ -130,25 +138,32 @@ Deno.test("fitness comes from the latest wellness row that has it", () => {
   });
 });
 
-Deno.test("VO2max is the last reading with its change over the history and the distance to the goal", () => {
-  assertEquals(buildSummary(snapshot, rules, { vo2max: 60 }).vo2max, {
+Deno.test("VO2max is the last reading with its change, the distance to the goal and its value at the goal weight", () => {
+  assertEquals(withGoals.vo2max, {
     date: "2026-11-10",
     value: 47.5,
     since: "2026-10-28",
     change: 1.5,
     goal: 60,
     toGoal: 12.5,
+    atGoalWeight: 51.1,
   });
 });
 
-Deno.test("weight is read as a seven-day average, first week against last, with the distance to the goal", () => {
-  assertEquals(buildSummary(snapshot, rules, { weightKg: 85 }).weight, {
+Deno.test("weight is a seven-day average with its four-week rate, a fast loss flag and the distance to the goal", () => {
+  assertEquals(withGoals.weight, {
     date: "2026-11-12",
     kg: 91,
     weekAverageKg: 91.5,
-    since: "2026-10-26",
-    change: -2,
+    since: "2026-10-14",
+    change: -4,
+    perWeekKg: -1,
+    fastLoss: true,
     goal: 85,
     toGoal: -6.5,
   });
+});
+
+Deno.test("thresholds carry the age of the sport settings", () => {
+  assertEquals(summary.thresholds[0].settingsUpdatedDaysAgo, 73);
 });

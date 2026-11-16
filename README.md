@@ -90,6 +90,7 @@ cannot.
 | `readiness.deviationSd`          | Standard deviations from baseline that raise a flag               |
 | `readiness.shortSleepHours`      | Sleep below this raises a flag                                    |
 | `readiness.deepFatigueFormRatio` | Form (CTL minus ATL) relative to CTL that raises a flag           |
+| `readiness.fastWeightLossShare`  | Weekly weight loss as a share of body weight that raises a flag   |
 | `goals.vo2max`                   | Optional VO2max target, `summary` reports the distance to it      |
 | `goals.weightKg`                 | Optional body weight target, reported the same way                |
 

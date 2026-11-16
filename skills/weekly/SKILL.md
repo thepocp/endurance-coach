@@ -23,8 +23,8 @@ description: Weekly review and plan for the coming week. Use on Sunday or whenev
      `profile.md`, then fit it to the limits and to time off in the calendar.
    - After illness, injury or a break, volume comes back first and intensity
      last.
-   - Schedule a threshold test when zones are older than about eight weeks or
-     missing.
+   - Schedule a threshold test when zones are missing or older than about eight
+     weeks (`thresholds[].settingsUpdatedDaysAgo` above 56).
 5. Call `save_plan`. If it returns violations, change the plan and call it
    again.
 6. Show the athlete the week as a table (day, sport, session, duration, purpose)

@@ -12,3 +12,10 @@ export function weekStart(date: string): string {
   const mondayOffset = (new Date(`${date}T00:00:00Z`).getUTCDay() + 6) % 7;
   return addDays(date, -mondayOffset);
 }
+
+export function daysBetween(from: string, to: string): number {
+  return Math.round(
+    (Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) /
+      86_400_000,
+  );
+}

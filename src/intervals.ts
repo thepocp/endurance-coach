@@ -15,6 +15,7 @@ const Athlete = z.object({
     hr_zones: z.array(z.number()).nullish(),
     threshold_pace: z.number().nullish(),
     pace_units: z.string().nullish(),
+    updated: localDateTime.nullish(),
   })),
 });
 

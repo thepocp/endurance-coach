@@ -1,4 +1,4 @@
-import { addDays, weekStart } from "./dates.ts";
+import { addDays, daysBetween, weekStart } from "./dates.ts";
 import type { Goals, ReadinessRules } from "./config.ts";
 import type { Activity, Snapshot } from "./intervals.ts";
 import { EASY_ZONES } from "./plan.ts";
@@ -8,6 +8,7 @@ const RECENT_DAYS = 14;
 const PLANNED_DAYS = 14;
 // Body weight swings by a kilogram from day to day, so it is read as an average.
 const WEIGHT_AVERAGE_DAYS = 7;
+const WEIGHT_TREND_DAYS = 28;
 const OFF_CATEGORIES = ["HOLIDAY", "SICK", "INJURED"];
 
 type Sport = "run" | "ride" | "other";
@@ -24,6 +25,7 @@ const minutes = (secs: number | null | undefined) =>
 const km = (meters: number | null | undefined) =>
   Math.round((meters || 0) / 100) / 10;
 const round1 = (value: number) => Math.round(value * 10) / 10;
+const round2 = (value: number) => Math.round(value * 100) / 100;
 const mean = (values: number[]) =>
   values.reduce((a, b) => a + b, 0) / values.length;
 
@@ -38,8 +40,14 @@ function summarizeWeek(activities: Activity[]) {
     other: emptyTotals(),
   };
   const hrZoneSecs: number[] = [];
+  const sportZoneSecs: Record<Sport, number[]> = {
+    run: [],
+    ride: [],
+    other: [],
+  };
   for (const a of activities) {
-    const t = sports[sportOf(a.type)];
+    const sport = sportOf(a.type);
+    const t = sports[sport];
     t.sessions += 1;
     t.minutes += minutes(a.moving_time);
     t.km = Math.round((t.km + km(a.distance)) * 10) / 10;
@@ -47,12 +55,19 @@ function summarizeWeek(activities: Activity[]) {
     t.longestMinutes = Math.max(t.longestMinutes, minutes(a.moving_time));
     (a.icu_hr_zone_times || []).forEach((secs, zone) => {
       hrZoneSecs[zone] = (hrZoneSecs[zone] || 0) + secs;
+      sportZoneSecs[sport][zone] = (sportZoneSecs[sport][zone] || 0) + secs;
     });
   }
   const zoneTotal = hrZoneSecs.reduce((a, b) => a + b, 0);
   const easySecs = hrZoneSecs.slice(0, EASY_ZONES).reduce((a, b) => a + b, 0);
+  const withZones = (sport: Sport) => ({
+    ...sports[sport],
+    hrZoneMinutes: sportZoneSecs[sport].map(minutes),
+  });
   return {
-    ...sports,
+    run: withZones("run"),
+    ride: withZones("ride"),
+    other: withZones("other"),
     hrZoneMinutes: hrZoneSecs.map(minutes),
     easyShare: zoneTotal ? Math.round(easySecs / zoneTotal * 100) / 100 : null,
   };
@@ -82,21 +97,22 @@ export function buildSummary(
     typeof w.weight === "number" ? [{ date: w.id, kg: w.weight }] : []
   );
   const latestWeight = weights.at(-1);
-  const weight = latestWeight && {
-    latest: latestWeight,
-    first: mean(
-      weights
-        .filter((w) => w.date < addDays(weights[0].date, WEIGHT_AVERAGE_DAYS))
-        .map((w) => w.kg),
-    ),
-    now: mean(
-      weights
-        .filter((w) =>
-          w.date > addDays(latestWeight.date, -WEIGHT_AVERAGE_DAYS)
-        )
-        .map((w) => w.kg),
-    ),
+  const weightUpTo = (end: string) => {
+    const kg = weights
+      .filter((w) =>
+        w.date > addDays(end, -WEIGHT_AVERAGE_DAYS) && w.date <= end
+      )
+      .map((w) => w.kg);
+    return kg.length ? mean(kg) : undefined;
   };
+  const weightNow = latestWeight && weightUpTo(latestWeight.date);
+  const weightBefore = latestWeight &&
+    weightUpTo(addDays(latestWeight.date, -WEIGHT_TREND_DAYS));
+  const weightFirst = weights.length &&
+    weightUpTo(addDays(weights[0].date, WEIGHT_AVERAGE_DAYS - 1));
+  const weightPerWeek = weightNow && weightBefore
+    ? (weightNow - weightBefore) / (WEIGHT_TREND_DAYS / 7)
+    : undefined;
 
   return {
     today,
@@ -113,15 +129,23 @@ export function buildSummary(
       change: round1(latestVo2max.value - vo2max[0].value),
       goal: goals.vo2max,
       toGoal: goals.vo2max && round1(goals.vo2max - latestVo2max.value),
+      atGoalWeight: weightNow && goals.weightKg &&
+        round1(latestVo2max.value * weightNow / goals.weightKg),
     },
-    weight: weight && {
-      date: weight.latest.date,
-      kg: weight.latest.kg,
-      weekAverageKg: round1(weight.now),
+    weight: latestWeight && weightNow && weightFirst && {
+      date: latestWeight.date,
+      kg: latestWeight.kg,
+      weekAverageKg: round1(weightNow),
       since: weights[0].date,
-      change: round1(weight.now - weight.first),
+      change: round1(weightNow - weightFirst),
+      perWeekKg: weightPerWeek === undefined
+        ? undefined
+        : round2(weightPerWeek),
+      fastLoss: weightPerWeek === undefined
+        ? undefined
+        : -weightPerWeek > weightNow * rules.fastWeightLossShare,
       goal: goals.weightKg,
-      toGoal: goals.weightKg && round1(goals.weightKg - weight.now),
+      toGoal: goals.weightKg && round1(goals.weightKg - weightNow),
     },
     thresholds: athlete.sportSettings
       .filter((s) => s.types.some((t) => sportOf(t) !== "other"))
@@ -132,6 +156,8 @@ export function buildSummary(
         hrZones: s.hr_zones,
         thresholdPace: s.threshold_pace,
         paceUnits: s.pace_units,
+        settingsUpdatedDaysAgo: s.updated &&
+          daysBetween(day(s.updated), today),
       })),
     weeks: weekKeys.map((week) => ({
       week,

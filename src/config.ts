@@ -23,6 +23,7 @@ export const Config = z.strictObject({
     deviationSd: z.number().positive(),
     shortSleepHours: z.number().positive(),
     deepFatigueFormRatio: z.number().negative(),
+    fastWeightLossShare: z.number().positive(),
   }),
   goals: z.strictObject({
     vo2max: z.number().positive().optional(),
