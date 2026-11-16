@@ -131,6 +131,13 @@ export function validatePlan(plan: Plan, ctx: PlanContext): string[] {
         `${w.date} "${w.name}" falls on ${off.category} time off in the calendar`,
       );
     }
+    const maxZone = rules.maxZoneBySport?.[w.sport];
+    const topZone = Math.max(...workoutSteps(w).map((s) => s.zone));
+    if (maxZone && isAhead(w, ctx) && topZone > maxZone) {
+      violations.push(
+        `${w.date} "${w.name}": Z${topZone} is above the Z${maxZone} cap for ${w.sport} workouts`,
+      );
+    }
     const paced = workoutSteps(w).some((s) => s.by === "pace");
     if (paced && w.sport !== "run") {
       violations.push(`${w.date} "${w.name}": pace targets are for runs only`);

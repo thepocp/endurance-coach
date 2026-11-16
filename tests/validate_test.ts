@@ -262,3 +262,14 @@ Deno.test("a short longest run is not treated as a long run", () => {
   ]);
   assertEquals(validatePlan(plan, ctx), []);
 });
+
+Deno.test("zone above the cap for the sport is rejected", () => {
+  const capped = {
+    ...ctx,
+    rules: { ...ctx.rules, maxZoneBySport: { ride: 2 } },
+  };
+  assertStringIncludes(
+    onlyViolation(week(balanced), capped),
+    "Z5 is above the Z2 cap for ride",
+  );
+});

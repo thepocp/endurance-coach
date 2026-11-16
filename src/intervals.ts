@@ -40,6 +40,7 @@ const Wellness = z.object({
   sleepSecs: z.number().nullish(),
   sleepScore: z.number().nullish(),
   weight: z.number().nullish(),
+  vo2max: z.number().nullish(),
 });
 
 const Event = z.object({

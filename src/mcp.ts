@@ -87,13 +87,13 @@ const server = new McpServer({ name: "endurance-coach", version: "0.1.0" });
 
 server.registerTool("summary", {
   description:
-    "Fresh training summary from intervals.icu: readiness, fitness, weekly totals per sport, recent activities, races, time off, planned workouts, and saved plans of the last weeks compared with what was done.",
+    "Fresh training summary from intervals.icu: readiness, fitness, VO2max against the goal, weekly totals per sport, recent activities, races, time off, planned workouts, and saved plans of the last weeks compared with what was done.",
   annotations: { readOnlyHint: true },
 }, async () => {
-  const { readiness } = await loadConfig(projectDir);
+  const { readiness, goals } = await loadConfig(projectDir);
   const snapshot = await fetchSnapshot(apiKey);
   return reply({
-    ...buildSummary(snapshot, readiness),
+    ...buildSummary(snapshot, readiness, goals?.vo2max),
     planVsActual: (await recentPlans(snapshot.today)).map((plan) =>
       planVsActual(plan, snapshot.activities, snapshot.today)
     ),

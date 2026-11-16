@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { ZONES } from "./plan.ts";
+
+const zone = z.number().int().min(1).max(ZONES);
 
 export const Config = z.strictObject({
   plan: z.strictObject({
@@ -10,6 +13,10 @@ export const Config = z.strictObject({
     maxLongRunShare: z.number().min(0).max(1),
     longRunFromMinutes: z.number().positive(),
     loadingWeeksBeforeDeload: z.number().int().positive(),
+    maxZoneBySport: z.strictObject({
+      run: zone.optional(),
+      ride: zone.optional(),
+    }).optional(),
   }),
   readiness: z.strictObject({
     baselineDays: z.number().int().positive(),
@@ -17,6 +24,9 @@ export const Config = z.strictObject({
     shortSleepHours: z.number().positive(),
     deepFatigueFormRatio: z.number().negative(),
   }),
+  goals: z.strictObject({
+    vo2max: z.number().positive().optional(),
+  }).optional(),
 });
 
 export type PlanRules = z.infer<typeof Config>["plan"];

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { weekStart } from "./dates.ts";
 
 const ZONE_INTENSITY = [0.55, 0.7, 0.83, 0.95, 1.05, 1.15, 1.2];
+export const ZONES = ZONE_INTENSITY.length;
 export const EASY_ZONES = 2;
 export const HARD_ZONE = 4;
 
@@ -9,7 +10,7 @@ const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 
 const Step = z.object({
   minutes: z.number().positive(),
-  zone: z.number().int().min(1).max(ZONE_INTENSITY.length),
+  zone: z.number().int().min(1).max(ZONES),
   by: z.enum(["hr", "pace", "feel"]),
 });
 

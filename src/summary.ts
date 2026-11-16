@@ -21,6 +21,7 @@ const minutes = (secs: number | null | undefined) =>
   Math.round((secs || 0) / 60);
 const km = (meters: number | null | undefined) =>
   Math.round((meters || 0) / 100) / 10;
+const round1 = (value: number) => Math.round(value * 10) / 10;
 
 function emptyTotals() {
   return { sessions: 0, minutes: 0, km: 0, load: 0, longestMinutes: 0 };
@@ -56,6 +57,7 @@ function summarizeWeek(activities: Activity[]) {
 export function buildSummary(
   { today, athlete, activities, wellness, events }: Snapshot,
   rules: ReadinessRules,
+  vo2maxGoal?: number,
 ) {
   const byWeek = new Map<string, Activity[]>();
   for (const a of activities) {
@@ -68,6 +70,10 @@ export function buildSummary(
     weekKeys.push(w);
   }
   const latest = wellness.findLast((w) => typeof w.ctl === "number");
+  const vo2max = wellness.flatMap((w) =>
+    typeof w.vo2max === "number" ? [{ date: w.id, value: w.vo2max }] : []
+  );
+  const latestVo2max = vo2max.at(-1);
 
   return {
     today,
@@ -77,6 +83,13 @@ export function buildSummary(
       ctl: latest.ctl,
       atl: latest.atl,
       rampRate: latest.rampRate,
+    },
+    vo2max: latestVo2max && {
+      ...latestVo2max,
+      since: vo2max[0].date,
+      change: round1(latestVo2max.value - vo2max[0].value),
+      goal: vo2maxGoal,
+      toGoal: vo2maxGoal && round1(vo2maxGoal - latestVo2max.value),
     },
     thresholds: athlete.sportSettings
       .filter((s) => s.types.some((t) => sportOf(t) !== "other"))

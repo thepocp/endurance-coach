@@ -1,9 +1,10 @@
 import { assertEquals } from "@std/assert";
 import { Config } from "../src/config.ts";
+import type { Snapshot } from "../src/intervals.ts";
 import { buildSummary } from "../src/summary.ts";
 import template from "../template/config.json" with { type: "json" };
 
-const summary = buildSummary({
+const snapshot: Snapshot = {
   today: "2026-11-13",
   athlete: {
     timezone: "Europe/Berlin",
@@ -35,7 +36,11 @@ const summary = buildSummary({
       icu_hr_zone_times: [1500, 300],
     },
   ],
-  wellness: [{ id: "2026-11-12", ctl: 28, atl: 12, rampRate: -4.2 }],
+  wellness: [
+    { id: "2026-10-28", vo2max: 46 },
+    { id: "2026-11-10", vo2max: 47.5 },
+    { id: "2026-11-12", ctl: 28, atl: 12, rampRate: -4.2 },
+  ],
   events: [
     {
       id: 1,
@@ -71,7 +76,9 @@ const summary = buildSummary({
       type: "Run",
     },
   ],
-}, Config.parse(template).readiness);
+};
+const rules = Config.parse(template).readiness;
+const summary = buildSummary(snapshot, rules);
 
 Deno.test("activities are grouped into Monday-based weeks per sport, empty weeks included", () => {
   assertEquals(summary.weeks.map((w) => w.week), [
@@ -118,5 +125,16 @@ Deno.test("fitness comes from the latest wellness row that has it", () => {
     ctl: 28,
     atl: 12,
     rampRate: -4.2,
+  });
+});
+
+Deno.test("VO2max is the last reading with its change over the history and the distance to the goal", () => {
+  assertEquals(buildSummary(snapshot, rules, 60).vo2max, {
+    date: "2026-11-10",
+    value: 47.5,
+    since: "2026-10-28",
+    change: 1.5,
+    goal: 60,
+    toGoal: 12.5,
   });
 });

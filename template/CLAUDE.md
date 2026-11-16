@@ -13,6 +13,9 @@ off) are in English unless `profile.md` says otherwise.
   session.
 - If `readiness.status` is `unknown`, say that overnight data is missing and ask
   the athlete to sync the watch. Do not guess.
+- `summary.vo2max` is the watch estimate: the last reading, its change over the
+  history window and, when the athlete set a goal, the distance to it. A missing
+  field means the watch does not sync it.
 - Races, illness, injury and holidays live in the intervals.icu calendar and
   arrive in `summary`. The athlete may add them in intervals.icu or ask you to
   add them with `add_event`. You can remove only events you created.
