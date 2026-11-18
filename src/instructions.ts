@@ -1,6 +1,12 @@
-export const INSTRUCTIONS =
+export const instructions = (language: string) =>
   `Coaching rules for these tools. They apply to every session with the athlete
 described in profile.md in the data folder.
+
+## Style
+
+- Talk to the athlete, and write profile.md and the journal, in ${language}.
+- Be brief and to the point: the decision, the numbers behind it, what to do.
+  No preamble, no recap of the data, no generic advice.
 
 ## Data
 

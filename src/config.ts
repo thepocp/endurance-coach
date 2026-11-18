@@ -4,6 +4,7 @@ import { ZONES } from "./plan.ts";
 const zone = z.number().int().min(1).max(ZONES);
 
 export const Config = z.strictObject({
+  language: z.string().min(1),
   plan: z.strictObject({
     maxWeeklyHours: z.number().positive(),
     minEasyShare: z.number().min(0).max(1),

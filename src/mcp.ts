@@ -5,7 +5,7 @@ import { desiredEvents, diffEvents, isOwn, OWN_PREFIX } from "./calendar.ts";
 import { planVsActual } from "./compliance.ts";
 import { loadConfig } from "./config.ts";
 import { addDays, weekStart } from "./dates.ts";
-import { INSTRUCTIONS } from "./instructions.ts";
+import { instructions } from "./instructions.ts";
 import {
   createEvents,
   deleteEvents,
@@ -86,7 +86,7 @@ async function pushChanges(week: string) {
 
 const server = new McpServer(
   { name: "endurance-coach", version: "0.1.0" },
-  { instructions: INSTRUCTIONS },
+  { instructions: instructions((await loadConfig(projectDir)).language) },
 );
 
 server.registerTool("summary", {

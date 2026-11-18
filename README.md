@@ -63,7 +63,8 @@ Requires macOS, [Deno](https://deno.com) 2 and Claude Code.
    cp -R template ~/coach-data && cd ~/coach-data && git init
    ```
 
-3. Fill in `profile.md`, in your own language, and review `config.json`.
+3. Set your `language` in `config.json`, review the rules there and fill in
+   `profile.md`.
 4. Start a session in the data folder and accept the trust prompt:
 
    ```sh
@@ -77,6 +78,7 @@ cannot.
 
 | Key                              | Meaning                                                           |
 | -------------------------------- | ----------------------------------------------------------------- |
+| `language`                       | Language the coach talks and writes in, read at session start     |
 | `plan.maxWeeklyHours`            | Hard cap on planned hours per week                                |
 | `plan.minEasyShare`              | Minimum share of planned time in Z1 and Z2                        |
 | `plan.maxLoadRatio`              | Planned weekly load relative to current fitness (7 x CTL)         |
