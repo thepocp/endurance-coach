@@ -5,8 +5,9 @@ description: Plan or rebuild the rest of the current week or the coming weeks, f
 
 # Replan
 
-1. Call `summary` and read the current `plan/<week>.json`, `profile.md` and the
-   journal.
+1. Call `summary` and read the current `plan/<week>.json`, `profile.md`, the
+   monthly summaries `journal/<YYYY-MM>.md` and the weekly journal entries of
+   the last three weeks.
 2. If the athlete reports a race or time off that is not in `summary` yet, add
    it with `add_event` first. Events the athlete created in intervals.icu are
    theirs to change there.

@@ -25,6 +25,9 @@ described in profile.md in the data folder.
 - summary.weight is the seven-day average of the synced body weight, its
   change over the history window, its rate over the last four weeks and the
   distance to the goal weight.
+- summary.weeks holds the last six weeks. summary.months holds the finished
+  months of the last year: totals per sport, easy share, month-end CTL and
+  VO2max, and average weight. Use it for the long-term picture.
 - Each sport in summary.weeks has its own hrZoneMinutes. Heart rate lags in
   short intervals, so time in the top zones reads lower than the work done.
 - thresholds[].settingsUpdatedDaysAgo counts from the last change of any sport

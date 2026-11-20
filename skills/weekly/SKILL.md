@@ -5,8 +5,9 @@ description: Weekly review and plan for the coming week. Use on Sunday or whenev
 
 # Weekly review and plan
 
-1. Call `summary`. Read `profile.md`, the last journal entries and the previous
-   plan in `plan/`.
+1. Call `summary`. Read `profile.md`, the monthly summaries
+   `journal/<YYYY-MM>.md`, the weekly journal entries of the last three weeks
+   and the previous plan in `plan/`.
 2. Review the finished week against its plan using `planVsActual` from
    `summary`: what was done, missed or added, how planned and actual time and
    load compare, how load, easy share, RPE, readiness, and VO2max and weight
@@ -33,3 +34,7 @@ description: Weekly review and plan for the coming week. Use on Sunday or whenev
    `push_apply` with the token.
 8. Append the decisions and their reasons to `journal/<week>.md` and update
    "Current state" in `profile.md`.
+9. For each finished month without `journal/<YYYY-MM>.md`, write one from its
+   weekly entries: the phase of the season, key decisions and why, what worked
+   and what did not, illness and breaks, lessons for planning. Leave the numbers
+   out, `summary.months` has them.

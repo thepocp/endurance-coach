@@ -1,10 +1,12 @@
-import { addDays, daysBetween, weekStart } from "./dates.ts";
+import { addDays, addMonths, daysBetween, weekStart } from "./dates.ts";
 import type { Goals, ReadinessRules } from "./config.ts";
-import type { Activity, Snapshot } from "./intervals.ts";
+import type { Activity, Snapshot, Wellness } from "./intervals.ts";
 import { EASY_ZONES } from "./plan.ts";
 import { assessReadiness } from "./readiness.ts";
 
 const RECENT_DAYS = 14;
+// Older history is folded into calendar months to keep the summary short.
+const DETAILED_WEEKS = 6;
 const PLANNED_DAYS = 14;
 // Body weight swings by a kilogram from day to day, so it is read as an average.
 const WEIGHT_AVERAGE_DAYS = 7;
@@ -33,7 +35,7 @@ function emptyTotals() {
   return { sessions: 0, minutes: 0, km: 0, load: 0, longestMinutes: 0 };
 }
 
-function summarizeWeek(activities: Activity[]) {
+function totalsOf(activities: Activity[]) {
   const sports = {
     run: emptyTotals(),
     ride: emptyTotals(),
@@ -73,21 +75,68 @@ function summarizeWeek(activities: Activity[]) {
   };
 }
 
+function groupBy(activities: Activity[], key: (date: string) => string) {
+  const groups = new Map<string, Activity[]>();
+  for (const a of activities) {
+    const k = key(day(a.start_date_local));
+    groups.set(k, [...(groups.get(k) || []), a]);
+  }
+  return groups;
+}
+
+// Every week from the first activity to the current one, empty weeks included.
+export function weeklyTotals(activities: Activity[], today: string) {
+  const byWeek = groupBy(activities, weekStart);
+  const firstWeek = [...byWeek.keys()].sort()[0] || weekStart(today);
+  const weeks = [];
+  for (let w = firstWeek; w <= weekStart(today); w = addDays(w, 7)) {
+    weeks.push({ week: w, ...totalsOf(byWeek.get(w) || []) });
+  }
+  return weeks;
+}
+
+// Every finished month from the first activity on, empty months included.
+function monthlyTotals(
+  activities: Activity[],
+  wellness: Wellness[],
+  today: string,
+) {
+  const month = (date: string) => date.slice(0, 7);
+  const byMonth = groupBy(activities, month);
+  const thisMonth = month(today);
+  const firstMonth = [...byMonth.keys()].sort()[0] || thisMonth;
+  const months = [];
+  for (let m = firstMonth; m < thisMonth; m = addMonths(m, 1)) {
+    const { run, ride, other, easyShare } = totalsOf(byMonth.get(m) || []);
+    const rows = wellness.filter((w) => month(w.id) === m);
+    const weights = rows.flatMap((w) =>
+      typeof w.weight === "number" ? [w.weight] : []
+    );
+    months.push({
+      month: m,
+      run: withoutZones(run),
+      ride: withoutZones(ride),
+      other: withoutZones(other),
+      easyShare,
+      ctl: rows.findLast((w) => typeof w.ctl === "number")?.ctl,
+      vo2max: rows.findLast((w) => typeof w.vo2max === "number")?.vo2max,
+      weightKg: weights.length ? round1(mean(weights)) : undefined,
+    });
+  }
+  return months;
+}
+
+function withoutZones(
+  { hrZoneMinutes: _, ...totals }: ReturnType<typeof totalsOf>["run"],
+) {
+  return totals;
+}
+
 export function buildSummary(
   { today, athlete, activities, wellness, events }: Snapshot,
   rules: ReadinessRules,
   goals: Goals = {},
 ) {
-  const byWeek = new Map<string, Activity[]>();
-  for (const a of activities) {
-    const week = weekStart(day(a.start_date_local));
-    byWeek.set(week, [...(byWeek.get(week) || []), a]);
-  }
-  const firstWeek = [...byWeek.keys()].sort()[0] || weekStart(today);
-  const weekKeys: string[] = [];
-  for (let w = firstWeek; w <= weekStart(today); w = addDays(w, 7)) {
-    weekKeys.push(w);
-  }
   const latest = wellness.findLast((w) => typeof w.ctl === "number");
   const vo2max = wellness.flatMap((w) =>
     typeof w.vo2max === "number" ? [{ date: w.id, value: w.vo2max }] : []
@@ -159,10 +208,8 @@ export function buildSummary(
         settingsUpdatedDaysAgo: s.updated &&
           daysBetween(day(s.updated), today),
       })),
-    weeks: weekKeys.map((week) => ({
-      week,
-      ...summarizeWeek(byWeek.get(week) || []),
-    })),
+    weeks: weeklyTotals(activities, today).slice(-DETAILED_WEEKS),
+    months: monthlyTotals(activities, wellness, today),
     recent: activities
       .filter((a) => day(a.start_date_local) > addDays(today, -RECENT_DAYS))
       .map((a) => ({

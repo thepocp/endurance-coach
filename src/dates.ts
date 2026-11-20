@@ -19,3 +19,10 @@ export function daysBetween(from: string, to: string): number {
       86_400_000,
   );
 }
+
+// Months are "YYYY-MM" strings.
+export function addMonths(month: string, months: number): string {
+  const d = new Date(`${month}-01T00:00:00Z`);
+  d.setUTCMonth(d.getUTCMonth() + months);
+  return d.toISOString().slice(0, 7);
+}

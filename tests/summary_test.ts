@@ -108,6 +108,33 @@ Deno.test("activities are grouped into Monday-based weeks per sport, empty weeks
   assertEquals(week.hrZoneMinutes, [85, 5]);
 });
 
+Deno.test("history before the last six weeks is folded into finished calendar months", () => {
+  const long = buildSummary({
+    ...snapshot,
+    activities: [
+      { start_date_local: "2026-08-20T09:00:00", type: "Ride" },
+      ...snapshot.activities,
+    ],
+  }, rules);
+  assertEquals(long.weeks.map((w) => w.week)[0], "2026-10-05");
+  assertEquals(long.weeks.length, 6);
+  assertEquals(long.months.map((m) => m.month), [
+    "2026-08",
+    "2026-09",
+    "2026-10",
+  ]);
+  assertEquals(long.months[2], {
+    month: "2026-10",
+    run: { sessions: 1, minutes: 120, km: 18, load: 82, longestMinutes: 120 },
+    ride: { sessions: 0, minutes: 0, km: 0, load: 0, longestMinutes: 0 },
+    other: { sessions: 0, minutes: 0, km: 0, load: 0, longestMinutes: 0 },
+    easyShare: 0.9,
+    ctl: undefined,
+    vo2max: 46,
+    weightKg: 94.2,
+  });
+});
+
 Deno.test("easy share is the Z1-Z2 fraction of heart rate zone time", () => {
   assertEquals(summary.weeks[0].easyShare, 0.9);
 });

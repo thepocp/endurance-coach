@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { addDays, localDate, weekStart } from "./dates.ts";
+import { addDays, addMonths, localDate } from "./dates.ts";
 
 const API = "https://intervals.icu/api/v1/athlete/0";
-const HISTORY_DAYS = 90;
+const HISTORY_MONTHS = 12;
 
 const localDateTime = z.string().regex(/^\d{4}-\d{2}-\d{2}/);
 
@@ -153,7 +153,7 @@ export function deleteEvents(apiKey: string, ids: number[]) {
 export async function fetchSnapshot(apiKey: string): Promise<Snapshot> {
   const athlete = await get(apiKey, "", {}, Athlete);
   const today = localDate(athlete.timezone, new Date());
-  const oldest = weekStart(addDays(today, -HISTORY_DAYS));
+  const oldest = `${addMonths(today.slice(0, 7), -HISTORY_MONTHS)}-01`;
   const [activities, wellness, events] = await Promise.all([
     get(apiKey, "/activities", { oldest, newest: today }, z.array(Activity)),
     get(apiKey, "/wellness", { oldest, newest: today }, z.array(Wellness)),

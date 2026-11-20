@@ -15,7 +15,7 @@ import {
   listEvents,
 } from "./intervals.ts";
 import { Plan, workoutTotals } from "./plan.ts";
-import { buildSummary, sportOf } from "./summary.ts";
+import { buildSummary, sportOf, weeklyTotals } from "./summary.ts";
 import {
   completedTotals,
   planLimits,
@@ -33,6 +33,8 @@ const apiKey = requireEnv("ICU_API_KEY");
 const projectDir = requireEnv("CLAUDE_PROJECT_DIR");
 
 const COMPARED_WEEKS = 4;
+// The run volume limit was tuned on this much history, the summary covers more.
+const RUN_LIMIT_HISTORY_DAYS = 90;
 const date = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const planPath = (week: string) => `${projectDir}/plan/${week}.json`;
 const reply = (value: unknown, isError = false) => ({
@@ -91,7 +93,7 @@ const server = new McpServer(
 
 server.registerTool("summary", {
   description:
-    "Fresh training summary from intervals.icu: readiness, fitness, VO2max and body weight against their goals, weekly totals per sport, recent activities, races, time off, planned workouts, and saved plans of the last weeks compared with what was done.",
+    "Fresh training summary from intervals.icu: readiness, fitness, VO2max and body weight against their goals, totals per sport for the last weeks and the finished months of the last year, recent activities, races, time off, planned workouts, and saved plans of the last weeks compared with what was done.",
   annotations: { readOnlyHint: true },
 }, async () => {
   const { readiness, goals } = await loadConfig(projectDir);
@@ -126,7 +128,13 @@ server.registerTool("save_plan", {
       .filter((a) => a.start_date_local.slice(0, 10) === snapshot.today)
       .map((a) => sportOf(a.type)),
     ctl,
-    runMinutesByWeek: summary.weeks
+    runMinutesByWeek: weeklyTotals(
+      snapshot.activities.filter((a) =>
+        a.start_date_local.slice(0, 10) >=
+          weekStart(addDays(snapshot.today, -RUN_LIMIT_HISTORY_DAYS))
+      ),
+      snapshot.today,
+    )
       .filter((w) => w.week < plan.week)
       .map((w) => w.run.minutes),
     runPaceZonesSet: summary.thresholds
