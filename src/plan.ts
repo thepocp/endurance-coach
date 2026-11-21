@@ -12,6 +12,7 @@ const Step = z.object({
   minutes: z.number().positive(),
   zone: z.number().int().min(1).max(ZONES),
   by: z.enum(["hr", "pace", "feel"]),
+  terrain: z.enum(["uphill", "downhill"]).optional(),
 });
 
 const Block = z.union([
@@ -50,16 +51,13 @@ export function workoutTotals(workout: Workout) {
   const steps = workoutSteps(workout);
   let minutes = 0;
   let easyMinutes = 0;
+  let hardMinutes = 0;
   let load = 0;
   for (const s of steps) {
     minutes += s.minutes;
     if (s.zone <= EASY_ZONES) easyMinutes += s.minutes;
+    if (s.zone >= HARD_ZONE) hardMinutes += s.minutes;
     load += s.minutes / 60 * ZONE_INTENSITY[s.zone - 1] ** 2 * 100;
   }
-  return {
-    minutes,
-    easyMinutes,
-    load,
-    hard: steps.some((s) => s.zone >= HARD_ZONE),
-  };
+  return { minutes, easyMinutes, hardMinutes, load };
 }

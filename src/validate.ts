@@ -93,6 +93,10 @@ function isAhead(w: Plan["workouts"][number], ctx: PlanContext): boolean {
     (w.date === ctx.today && !ctx.sportsDoneToday.includes(w.sport));
 }
 
+function isHard(w: Plan["workouts"][number], rules: PlanRules): boolean {
+  return workoutTotals(w).hardMinutes >= rules.hardWorkoutFromMinutes;
+}
+
 export function planTotals(plan: Plan, ctx: PlanContext): WeekTotals {
   const { done } = ctx;
   const ahead = plan.workouts.filter((w) => isAhead(w, ctx));
@@ -111,7 +115,8 @@ export function planTotals(plan: Plan, ctx: PlanContext): WeekTotals {
       Math.max(done.longestRunMinutes, ...runs.map((t) => t.minutes)),
     ),
     runs: done.runs + runs.length,
-    hardWorkouts: done.hardWorkouts + totals.filter((t) => t.hard).length,
+    hardWorkouts: done.hardWorkouts +
+      ahead.filter((w) => isHard(w, ctx.rules)).length,
   };
 }
 
@@ -136,6 +141,11 @@ export function validatePlan(plan: Plan, ctx: PlanContext): string[] {
     if (maxZone && isAhead(w, ctx) && topZone > maxZone) {
       violations.push(
         `${w.date} "${w.name}": Z${topZone} is above the Z${maxZone} cap for ${w.sport} workouts`,
+      );
+    }
+    if (workoutSteps(w).some((s) => s.by === "pace" && s.terrain)) {
+      violations.push(
+        `${w.date} "${w.name}": pace targets do not work on a slope, use feel or hr`,
       );
     }
     const paced = workoutSteps(w).some((s) => s.by === "pace");
@@ -178,9 +188,7 @@ export function validatePlan(plan: Plan, ctx: PlanContext): string[] {
       `${totals.hardWorkouts} hard workouts, at most ${rules.maxHardWorkouts} per week`,
     );
   }
-  const hard = plan.workouts.filter((w) =>
-    isAhead(w, ctx) && workoutTotals(w).hard
-  );
+  const hard = plan.workouts.filter((w) => isAhead(w, ctx) && isHard(w, rules));
   for (const a of hard) {
     if (
       hard.some((b) => b.sport === a.sport && b.date === addDays(a.date, 1))

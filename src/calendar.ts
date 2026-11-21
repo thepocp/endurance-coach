@@ -23,10 +23,14 @@ function duration(minutes: number): string {
 
 function stepLine(step: Step): string {
   if (step.by === "feel") {
-    return `- ${FEEL_CUES[step.zone - 1]} ${duration(step.minutes)}`;
+    const cue = [FEEL_CUES[step.zone - 1], step.terrain].filter(Boolean);
+    return `- ${cue.join(" ")} ${duration(step.minutes)}`;
   }
   const unit = step.by === "hr" ? "HR" : "Pace";
-  return `- ${duration(step.minutes)} Z${step.zone} ${unit}`;
+  const cue = step.terrain
+    ? `${step.terrain[0].toUpperCase()}${step.terrain.slice(1)} `
+    : "";
+  return `- ${cue}${duration(step.minutes)} Z${step.zone} ${unit}`;
 }
 
 // A blank line ends a repeat block in the intervals.icu workout syntax, so

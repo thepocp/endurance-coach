@@ -11,6 +11,7 @@ export const Config = z.strictObject({
     maxLoadRatio: z.number().positive(),
     deloadLoadRatio: z.number().positive(),
     maxHardWorkouts: z.number().int().min(0),
+    hardWorkoutFromMinutes: z.number().positive(),
     maxLongRunShare: z.number().min(0).max(1),
     longRunFromMinutes: z.number().positive(),
     loadingWeeksBeforeDeload: z.number().int().positive(),

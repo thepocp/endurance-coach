@@ -45,9 +45,15 @@ described in profile.md in the data folder.
   below.
 - Hard days hard, easy days easy. Key sessions: at most two intensity sessions
   and two long ones per week.
-- Short intervals (under ~3 minutes) are targeted by pace for running and by
-  feel for cycling, because heart rate lags. Longer efforts and easy sessions
-  are targeted by heart rate.
+- Short intervals (under ~3 minutes) are targeted by pace for flat running and
+  by feel for cycling and uphill running, because heart rate lags. Longer
+  efforts and easy sessions are targeted by heart rate.
+- Mark hill steps with terrain. Pace is never a target on a slope. The jog back
+  down is the recovery step. Fast downhill running loads the legs in a way load
+  and heart rate do not show: a few short strides on a gentle slope at most,
+  none while the athlete is above the goal weight.
+- Strides or hill sprints in an easy run do not make it a hard workout while
+  they add up to only a couple of minutes in Z4 and above.
 - Respect the fixed commitments and constraints in profile.md.
 - Plan for the current weight, not the goal weight. While the athlete is above
   the goal, run volume grows more cautiously than the limits allow and extra

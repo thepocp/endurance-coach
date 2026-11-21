@@ -139,6 +139,40 @@ Deno.test("third hard workout is rejected", () => {
   );
 });
 
+Deno.test("strides in an easy run do not make it a hard workout", () => {
+  const strides: Workout = {
+    date: "2026-11-19",
+    sport: "run",
+    name: "easy with strides",
+    steps: [
+      { minutes: 35, zone: 2, by: "hr" },
+      {
+        repeat: 6,
+        steps: [{ minutes: 0.3, zone: 6, by: "pace" }, {
+          minutes: 0.5,
+          zone: 1,
+          by: "hr",
+        }],
+      },
+    ],
+  };
+  const plan = week(balanced.with(2, strides));
+  assertEquals(validatePlan(plan, ctx), []);
+});
+
+Deno.test("pace target on a slope is rejected", () => {
+  const hills: Workout = {
+    date: "2026-11-17",
+    sport: "run",
+    name: "hills",
+    steps: [
+      { minutes: 30, zone: 2, by: "hr" },
+      { minutes: 0.2, zone: 7, by: "pace", terrain: "uphill" },
+    ],
+  };
+  assertStringIncludes(onlyViolation(week([hills])), "slope");
+});
+
 Deno.test("hard days back to back in one sport are rejected", () => {
   const plan = week([
     intervals("2026-11-17", "ride"),

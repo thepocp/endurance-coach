@@ -17,8 +17,8 @@ const plan: Plan = {
         {
           repeat: 6,
           steps: [
-            { minutes: 0.5, zone: 6, by: "feel" },
-            { minutes: 1.5, zone: 1, by: "hr" },
+            { minutes: 0.5, zone: 6, by: "feel", terrain: "uphill" },
+            { minutes: 1.5, zone: 1, by: "hr", terrain: "downhill" },
           ],
         },
         { minutes: 10, zone: 1, by: "hr" },
@@ -48,10 +48,10 @@ const stored = (
   ...patch,
 });
 
-Deno.test("workout text isolates repeats with blank lines", () => {
+Deno.test("workout text isolates repeats and names the terrain", () => {
   assertEquals(
     workoutText(plan.workouts[0]),
-    "- 15m Z2 HR\n\n6x\n- Very hard 30s\n- 1m30 Z1 HR\n\n- 10m Z1 HR",
+    "- 15m Z2 HR\n\n6x\n- Very hard uphill 30s\n- Downhill 1m30 Z1 HR\n\n- 10m Z1 HR",
   );
 });
 

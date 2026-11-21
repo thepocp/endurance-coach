@@ -84,7 +84,8 @@ cannot.
 | `plan.minEasyShare`              | Minimum share of planned time in Z1 and Z2                        |
 | `plan.maxLoadRatio`              | Planned weekly load relative to current fitness (7 x CTL)         |
 | `plan.deloadLoadRatio`           | The same ratio for a deload week                                  |
-| `plan.maxHardWorkouts`           | Sessions per week with time in Z4 or above                        |
+| `plan.maxHardWorkouts`           | Hard sessions per week                                            |
+| `plan.hardWorkoutFromMinutes`    | Minutes in Z4 or above that make a planned session hard           |
 | `plan.maxLongRunShare`           | Longest run as a share of weekly run time                         |
 | `plan.longRunFromMinutes`        | Runs shorter than this are not checked against the long run share |
 | `plan.loadingWeeksBeforeDeload`  | Loading weeks in a row before a deload is required                |
