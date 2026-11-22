@@ -7,7 +7,9 @@
 - `src/instructions.ts` holds the coaching rules, which the server sends to the
   model as its instructions. They must stay under 4096 characters.
 - `hooks/data-folder.md` describes the data folder to the model at session
-  start, so it updates with the plugin instead of living in a copied file.
+  start, so it updates with the plugin instead of living in a copied file. The
+  same hook warns when the data folder's `.claude/settings.json` differs from
+  the template.
 - `skills/` holds the coaching procedures, `template/` the data folder a user
   copies, `bin/coach-mcp` the launcher that reads the API key from the keychain.
 

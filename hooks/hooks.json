@@ -1,5 +1,5 @@
 {
-  "description": "Describe the data folder to the coach at session start",
+  "description": "Describe the data folder to the coach and check its settings at session start",
   "hooks": {
     "SessionStart": [
       {
@@ -7,6 +7,10 @@
           {
             "type": "command",
             "command": "cat \"${CLAUDE_PLUGIN_ROOT}/hooks/data-folder.md\""
+          },
+          {
+            "type": "command",
+            "command": "cmp -s \"$CLAUDE_PROJECT_DIR/.claude/settings.json\" \"${CLAUDE_PLUGIN_ROOT}/template/.claude/settings.json\" || echo 'Warning: .claude/settings.json in the data folder is missing or differs from the plugin template, so permissions may be out of date. Tell the athlete at the start of your reply and let them review it. Do not change it yourself.'"
           }
         ]
       }

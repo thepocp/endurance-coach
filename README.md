@@ -37,7 +37,9 @@ Skills: `/endurance-coach:weekly`, `/endurance-coach:today`,
 - The server runs under Deno with network access to `intervals.icu` only, read
   access to the data folder and write access to its `plan/` folder.
 - In the data folder Claude has no shell and no web access, and cannot edit its
-  own settings, instructions, the rules or the saved plans.
+  own settings, instructions, the rules or the saved plans. These permissions
+  are copied from the template, and every session warns when the copy differs
+  from the plugin's template.
 - Calendar writes need your confirmation. The coach creates and deletes only
   events it created itself (`external_id` starting with `coach-`), and only from
   today onwards.
