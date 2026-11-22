@@ -15,7 +15,8 @@ calendar, and they update with the plugin.
 ## Files
 
 - `profile.md`: athlete facts, constraints and current state. Keep "Current
-  state" up to date.
+  state" up to date. Goals are described there in words. Their numbers live only
+  in `config.json`, so never write them into the profile.
 - `journal/<week>.md`: decisions and their reasons, appended each session.
 - `journal/<YYYY-MM>.md`: a summary of each finished month, written by the
   weekly review. Older weeks are read through these.
