@@ -6,6 +6,8 @@
   else is pure functions over data and is where the logic and the tests go.
 - `src/instructions.ts` holds the coaching rules, which the server sends to the
   model as its instructions. They must stay under 4096 characters.
+- `hooks/data-folder.md` describes the data folder to the model at session
+  start, so it updates with the plugin instead of living in a copied file.
 - `skills/` holds the coaching procedures, `template/` the data folder a user
   copies, `bin/coach-mcp` the launcher that reads the API key from the keychain.
 

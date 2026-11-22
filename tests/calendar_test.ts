@@ -1,5 +1,10 @@
 import { assertEquals } from "@std/assert";
-import { desiredEvents, diffEvents, workoutText } from "../src/calendar.ts";
+import {
+  calendarDrift,
+  desiredEvents,
+  diffEvents,
+  workoutText,
+} from "../src/calendar.ts";
 import type { Event } from "../src/intervals.ts";
 import type { Plan } from "../src/plan.ts";
 
@@ -90,4 +95,23 @@ Deno.test("past days are not touched", () => {
   ], "2026-11-20");
   assertEquals(changes.create.map((e) => e.name), ["Long ride"]);
   assertEquals(changes.delete, []);
+});
+
+Deno.test("a coach workout moved in the calendar shows as drift", () => {
+  const drift = calendarDrift(plan, [
+    stored(1, "coach-2026-11-17-run-1", {
+      start_date_local: "2026-11-17T00:00:00",
+      type: "Run",
+      name: "Hill sprints",
+      description: workoutText(plan.workouts[0]),
+    }),
+    stored(2, "coach-2026-11-21-ride-1", {
+      start_date_local: "2026-11-22T00:00:00",
+    }),
+  ], "2026-11-16");
+  assertEquals(drift, [{
+    week: "2026-11-16",
+    inPlanOnly: [{ date: "2026-11-21", name: "Long ride" }],
+    inCalendarOnly: [{ date: "2026-11-22", name: "Long ride" }],
+  }]);
 });

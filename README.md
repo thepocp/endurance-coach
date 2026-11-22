@@ -10,19 +10,22 @@ to your watch.
 ## How it works
 
 - **Plugin (this repository)**: an MCP server, the coaching rules it sends to
-  the model and three skills. No personal data lives here.
+  the model, a session-start hook that describes the data folder to the model,
+  and three skills. No personal data lives here.
 - **Data folder (yours, private)**: athlete profile, training rules, week plans
   and a decision journal with monthly summaries, under git. Coach sessions run
-  in this folder.
+  in this folder. Every fact lives in one place: measurements, zones and the
+  calendar in intervals.icu, rules and goal numbers in `config.json`, and only
+  what intervals.icu does not know in `profile.md`.
 
-| Tool           | What it does                                                                                       | Permission |
-| -------------- | -------------------------------------------------------------------------------------------------- | ---------- |
-| `summary`      | Readiness, fitness, VO2max, weight, weekly and monthly totals, races, time off, plan versus actual | allowed    |
-| `save_plan`    | Validates a week plan and saves it only if it passes                                               | allowed    |
-| `push_preview` | Shows the calendar changes for a saved plan                                                        | allowed    |
-| `push_apply`   | Applies exactly the previewed changes                                                              | asks       |
-| `add_event`    | Adds a race or time off                                                                            | asks       |
-| `remove_event` | Removes an event the coach created                                                                 | asks       |
+| Tool           | What it does                                                                                                                               | Permission |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ---------- |
+| `summary`      | Readiness, fitness, VO2max, weight, weekly and monthly totals, races, time off, plan versus actual, coach workouts changed in the calendar | allowed    |
+| `save_plan`    | Validates a week plan and saves it only if it passes                                                                                       | allowed    |
+| `push_preview` | Shows the calendar changes for a saved plan                                                                                                | allowed    |
+| `push_apply`   | Applies exactly the previewed changes                                                                                                      | asks       |
+| `add_event`    | Adds a race or time off                                                                                                                    | asks       |
+| `remove_event` | Removes an event the coach created                                                                                                         | asks       |
 
 Skills: `/endurance-coach:weekly`, `/endurance-coach:today`,
 `/endurance-coach:replan`.

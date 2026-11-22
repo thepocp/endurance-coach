@@ -1,7 +1,13 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { desiredEvents, diffEvents, isOwn, OWN_PREFIX } from "./calendar.ts";
+import {
+  calendarDrift,
+  desiredEvents,
+  diffEvents,
+  isOwn,
+  OWN_PREFIX,
+} from "./calendar.ts";
 import { planVsActual } from "./compliance.ts";
 import { loadConfig } from "./config.ts";
 import { addDays, weekStart } from "./dates.ts";
@@ -46,16 +52,25 @@ async function readPlan(week: string): Promise<Plan> {
   return Plan.parse(JSON.parse(await Deno.readTextFile(planPath(week))));
 }
 
-async function recentPlans(today: string): Promise<Plan[]> {
+async function savedPlans(weeks: string[]): Promise<Plan[]> {
   const plans: Plan[] = [];
-  for (let i = COMPARED_WEEKS - 1; i >= 0; i--) {
+  for (const week of weeks) {
     try {
-      plans.push(await readPlan(addDays(weekStart(today), -7 * i)));
+      plans.push(await readPlan(week));
     } catch (e) {
       if (!(e instanceof Deno.errors.NotFound)) throw e;
     }
   }
   return plans;
+}
+
+function recentPlans(today: string): Promise<Plan[]> {
+  return savedPlans(
+    Array.from(
+      { length: COMPARED_WEEKS },
+      (_, i) => addDays(weekStart(today), -7 * (COMPARED_WEEKS - 1 - i)),
+    ),
+  );
 }
 
 async function previousWeeksDeload(week: string): Promise<boolean[]> {
@@ -93,7 +108,7 @@ const server = new McpServer(
 
 server.registerTool("summary", {
   description:
-    "Fresh training summary from intervals.icu: readiness, fitness, VO2max and body weight against their goals, totals per sport for the last weeks and the finished months of the last year, recent activities, races, time off, planned workouts, and saved plans of the last weeks compared with what was done.",
+    "Fresh training summary from intervals.icu: readiness, fitness, VO2max and body weight against their goals, totals per sport for the last weeks and the finished months of the last year, recent activities, races, time off, planned workouts, saved plans of the last weeks compared with what was done, and coach workouts changed in the calendar since they were pushed.",
   annotations: { readOnlyHint: true },
 }, async () => {
   const { readiness, goals } = await loadConfig(projectDir);
@@ -103,6 +118,10 @@ server.registerTool("summary", {
     planVsActual: (await recentPlans(snapshot.today)).map((plan) =>
       planVsActual(plan, snapshot.activities, snapshot.today)
     ),
+    calendarDrift: (await savedPlans([
+      weekStart(snapshot.today),
+      addDays(weekStart(snapshot.today), 7),
+    ])).flatMap((plan) => calendarDrift(plan, snapshot.events, snapshot.today)),
   });
 });
 

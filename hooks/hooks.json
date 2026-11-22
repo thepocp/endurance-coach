@@ -1,0 +1,15 @@
+{
+  "description": "Describe the data folder to the coach at session start",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cat \"${CLAUDE_PLUGIN_ROOT}/hooks/data-folder.md\""
+          }
+        ]
+      }
+    ]
+  }
+}

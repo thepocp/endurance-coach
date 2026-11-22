@@ -1,3 +1,4 @@
+import { addDays } from "./dates.ts";
 import type { Event, NewEvent } from "./intervals.ts";
 import type { Plan, Step, Workout } from "./plan.ts";
 
@@ -92,4 +93,25 @@ export function diffEvents(
       .map((e) => ({ id: e.id, date: day(e.start_date_local), name: e.name })),
     unchanged: upcoming.length - create.length,
   };
+}
+
+// Coach workouts the athlete moved, edited or deleted in intervals.icu.
+export function calendarDrift(plan: Plan, events: Event[], today: string) {
+  const { create, delete: removed } = diffEvents(
+    desiredEvents(plan),
+    events.filter((e) =>
+      day(e.start_date_local) >= plan.week &&
+      day(e.start_date_local) <= addDays(plan.week, 6)
+    ),
+    today,
+  );
+  if (!create.length && !removed.length) return [];
+  return [{
+    week: plan.week,
+    inPlanOnly: create.map((e) => ({
+      date: day(e.start_date_local),
+      name: e.name,
+    })),
+    inCalendarOnly: removed.map(({ date, name }) => ({ date, name })),
+  }];
 }

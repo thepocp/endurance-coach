@@ -32,6 +32,8 @@ described in profile.md in the data folder.
   short intervals, so time in the top zones reads lower than the work done.
 - thresholds[].settingsUpdatedDaysAgo counts from the last change of any sport
   setting in intervals.icu, so the zones are at least that old and may be older.
+- summary.calendarDrift lists coach workouts changed in intervals.icu after the
+  push. Ask the athlete which version is right, then save_plan and push it.
 - Races, illness, injury and holidays live in the intervals.icu calendar and
   arrive in summary. The athlete may add them in intervals.icu or ask you to
   add them with add_event. You can remove only events you created.
