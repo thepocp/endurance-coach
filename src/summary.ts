@@ -1,7 +1,7 @@
 import { addDays, addMonths, daysBetween, weekStart } from "./dates.ts";
 import type { Goals, ReadinessRules } from "./config.ts";
 import type { Activity, Snapshot, Wellness } from "./intervals.ts";
-import { EASY_ZONES } from "./plan.ts";
+import { EASY_ZONES, HARD_ZONE } from "./plan.ts";
 import { assessReadiness } from "./readiness.ts";
 
 const RECENT_DAYS = 14;
@@ -12,6 +12,7 @@ const PLANNED_DAYS = 14;
 const WEIGHT_AVERAGE_DAYS = 7;
 const WEIGHT_TREND_DAYS = 28;
 const OFF_CATEGORIES = ["HOLIDAY", "SICK", "INJURED"];
+const HARD_ACTIVITY_MIN_SECS = 300;
 
 type Sport = "run" | "ride" | "other";
 
@@ -30,6 +31,33 @@ const round1 = (value: number) => Math.round(value * 10) / 10;
 const round2 = (value: number) => Math.round(value * 100) / 100;
 const mean = (values: number[]) =>
   values.reduce((a, b) => a + b, 0) / values.length;
+const meanOf = (values: (number | null | undefined)[]) => {
+  const present = values.filter((v) => typeof v === "number");
+  return present.length ? mean(present) : undefined;
+};
+const roundTo = (value: number | null | undefined, digits: number) =>
+  typeof value === "number"
+    ? Math.round(value * 10 ** digits) / 10 ** digits
+    : undefined;
+
+export function isHardActivity(a: Activity): boolean {
+  const hardSecs = (a.icu_hr_zone_times || []).slice(HARD_ZONE - 1)
+    .reduce((x, y) => x + y, 0);
+  return hardSecs >= HARD_ACTIVITY_MIN_SECS;
+}
+
+// Runs use grade-adjusted meters per heartbeat, because few runners have
+// power. Rides use the intervals.icu power-based efficiency factor, because
+// speed on a bike depends on terrain and wind more than on fitness.
+function efficiencyOf(a: Activity): number | undefined {
+  const sport = sportOf(a.type);
+  if (sport === "run" && a.gap && a.average_heartrate) {
+    return a.gap * 60 / a.average_heartrate;
+  }
+  if (sport === "ride" && a.icu_efficiency_factor) {
+    return a.icu_efficiency_factor;
+  }
+}
 
 function emptyTotals() {
   return { sessions: 0, minutes: 0, km: 0, load: 0, longestMinutes: 0 };
@@ -47,9 +75,15 @@ function totalsOf(activities: Activity[]) {
     ride: [],
     other: [],
   };
+  const easySessions: Record<Sport, Activity[]> = {
+    run: [],
+    ride: [],
+    other: [],
+  };
   for (const a of activities) {
     const sport = sportOf(a.type);
     const t = sports[sport];
+    if (!isHardActivity(a)) easySessions[sport].push(a);
     t.sessions += 1;
     t.minutes += minutes(a.moving_time);
     t.km = Math.round((t.km + km(a.distance)) * 10) / 10;
@@ -64,6 +98,11 @@ function totalsOf(activities: Activity[]) {
   const easySecs = hrZoneSecs.slice(0, EASY_ZONES).reduce((a, b) => a + b, 0);
   const withZones = (sport: Sport) => ({
     ...sports[sport],
+    easyEfficiency: roundTo(meanOf(easySessions[sport].map(efficiencyOf)), 2),
+    easyDecoupling: roundTo(
+      meanOf(easySessions[sport].map((a) => a.decoupling)),
+      1,
+    ),
     hrZoneMinutes: sportZoneSecs[sport].map(minutes),
   });
   return {
@@ -221,6 +260,8 @@ export function buildSummary(
         avgHr: a.average_heartrate,
         rpe: a.icu_rpe,
         feel: a.feel,
+        efficiency: roundTo(efficiencyOf(a), 2),
+        decoupling: roundTo(a.decoupling, 1),
       })),
     races: events
       .filter((e) =>

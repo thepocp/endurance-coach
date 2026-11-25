@@ -40,7 +40,11 @@ const activity = (
 
 const result = planVsActual(plan, [
   activity("2026-11-15", "Run", 3000, 45),
-  activity("2026-11-17", "Run", 2700, 38),
+  {
+    ...activity("2026-11-17", "Run", 2700, 38),
+    icu_hr_zone_times: [600, 1800, 300],
+    pace_zone_times: [900, 1800],
+  },
   activity("2026-11-18", "Run", 1200, 15),
   activity("2026-11-18", "Walk", 3600, 10),
 ], "2026-11-19");
@@ -55,6 +59,9 @@ Deno.test("a planned workout is paired with the activity of that day and sport",
     plannedLoad: 33,
     actualMinutes: 45,
     actualLoad: 38,
+    plannedZoneMinutes: [0, 40, 0, 0, 0, 0, 0],
+    hrZoneMinutes: [10, 30, 5],
+    paceZoneMinutes: [15, 30],
   });
 });
 

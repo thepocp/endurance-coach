@@ -3,6 +3,14 @@ import type { ReadinessRules } from "./config.ts";
 import type { Wellness } from "./intervals.ts";
 
 const MIN_BASELINE_VALUES = 14;
+const SUBJECTIVE_FLAGS = [
+  ["soreness", "soreness_high"],
+  ["fatigue", "fatigue_high"],
+  ["stress", "stress_high"],
+  ["mood", "mood_low"],
+  ["motivation", "motivation_low"],
+  ["injury", "injury"],
+] as const;
 
 export type Readiness = {
   status: "green" | "yellow" | "red" | "unknown";
@@ -63,6 +71,16 @@ export function assessReadiness(
   const sleep = row?.sleepSecs;
   if (typeof sleep !== "number") missing.push("sleep_today");
   else if (sleep < rules.shortSleepHours * 3600) flags.push("sleep_short");
+
+  // intervals.icu scores these 1 to 4, where 1 is the best answer.
+  const subjective = SUBJECTIVE_FLAGS.flatMap(([field, flag]) => {
+    const score = row?.[field];
+    return typeof score === "number" ? [{ score, flag }] : [];
+  });
+  if (!subjective.length) missing.push("subjective_today");
+  for (const { score, flag } of subjective) {
+    if (score >= rules.subjectiveFlagFrom) flags.push(flag);
+  }
 
   const ctl = row?.ctl;
   const atl = row?.atl;

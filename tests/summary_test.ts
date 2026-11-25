@@ -102,6 +102,8 @@ Deno.test("activities are grouped into Monday-based weeks per sport, empty weeks
     km: 4.5,
     load: 20,
     longestMinutes: 30,
+    easyEfficiency: undefined,
+    easyDecoupling: undefined,
     hrZoneMinutes: [25, 5],
   });
   assertEquals(week.ride.minutes, 60);
@@ -125,14 +127,55 @@ Deno.test("history before the last six weeks is folded into finished calendar mo
   ]);
   assertEquals(long.months[2], {
     month: "2026-10",
-    run: { sessions: 1, minutes: 120, km: 18, load: 82, longestMinutes: 120 },
-    ride: { sessions: 0, minutes: 0, km: 0, load: 0, longestMinutes: 0 },
-    other: { sessions: 0, minutes: 0, km: 0, load: 0, longestMinutes: 0 },
+    run: {
+      sessions: 1,
+      minutes: 120,
+      km: 18,
+      load: 82,
+      longestMinutes: 120,
+      easyEfficiency: undefined,
+      easyDecoupling: undefined,
+    },
+    ride: {
+      sessions: 0,
+      minutes: 0,
+      km: 0,
+      load: 0,
+      longestMinutes: 0,
+      easyEfficiency: undefined,
+      easyDecoupling: undefined,
+    },
+    other: {
+      sessions: 0,
+      minutes: 0,
+      km: 0,
+      load: 0,
+      longestMinutes: 0,
+      easyEfficiency: undefined,
+      easyDecoupling: undefined,
+    },
     easyShare: 0.9,
     ctl: undefined,
     vo2max: 46,
     weightKg: 94.2,
   });
+});
+
+Deno.test("aerobic efficiency and decoupling average the easy sessions of a sport", () => {
+  const run = (hardSecs: number, gap: number, decoupling: number) => ({
+    start_date_local: "2026-11-11T08:00:00",
+    type: "Run",
+    average_heartrate: 140,
+    gap,
+    decoupling,
+    icu_hr_zone_times: [600, 2400, 0, hardSecs],
+  });
+  const week = buildSummary({
+    ...snapshot,
+    activities: [run(0, 3, 4), run(60, 2.8, 2), run(600, 4, 10)],
+  }, rules).weeks.at(-1);
+  assertEquals(week?.run.easyEfficiency, 1.24);
+  assertEquals(week?.run.easyDecoupling, 3);
 });
 
 Deno.test("easy share is the Z1-Z2 fraction of heart rate zone time", () => {

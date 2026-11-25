@@ -1,6 +1,6 @@
 import { addDays } from "./dates.ts";
 import type { Activity } from "./intervals.ts";
-import { type Plan, workoutTotals } from "./plan.ts";
+import { type Plan, workoutSteps, workoutTotals, ZONES } from "./plan.ts";
 import { sportOf } from "./summary.ts";
 
 const day = (dateTime: string) => dateTime.slice(0, 10);
@@ -29,6 +29,10 @@ export function planVsActual(
         day(a.start_date_local) === w.date && sportOf(a.type) === w.sport
       );
       const actual = index < 0 ? undefined : unmatched.splice(index, 1)[0];
+      const plannedZoneMinutes = Array(ZONES).fill(0);
+      for (const s of workoutSteps(w)) {
+        plannedZoneMinutes[s.zone - 1] += s.minutes;
+      }
       return {
         date: w.date,
         sport: w.sport,
@@ -38,6 +42,9 @@ export function planVsActual(
         plannedLoad: Math.round(planned.load),
         actualMinutes: actual ? minutes(actual.moving_time) : null,
         actualLoad: actual ? actual.icu_training_load || 0 : null,
+        plannedZoneMinutes: plannedZoneMinutes.map(Math.round),
+        hrZoneMinutes: actual?.icu_hr_zone_times?.map(minutes) || null,
+        paceZoneMinutes: actual?.pace_zone_times?.map(minutes) || null,
       };
     });
 

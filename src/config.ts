@@ -24,6 +24,7 @@ export const Config = z.strictObject({
     baselineDays: z.number().int().positive(),
     deviationSd: z.number().positive(),
     shortSleepHours: z.number().positive(),
+    subjectiveFlagFrom: z.number().int().min(1).max(4),
     deepFatigueFormRatio: z.number().negative(),
     fastWeightLossShare: z.number().positive(),
   }),

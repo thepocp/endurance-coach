@@ -12,6 +12,13 @@ description: Weekly review and plan for the coming week. Use on Sunday or whenev
    `summary`: what was done, missed or added, how planned and actual time and
    load compare, how load, easy share, RPE, readiness, and VO2max and weight
    against their goals moved. Missed key sessions are not made up later.
+   - For each done key session, compare `plannedZoneMinutes` with
+     `hrZoneMinutes`, and for runs with `paceZoneMinutes`: were the efforts hit,
+     missed or overdone? Short efforts read low in heart rate zones.
+   - Read the aerobic trend from `easyEfficiency` and `easyDecoupling` over the
+     weeks and months: efficiency rising and decoupling falling at the same easy
+     effort means the aerobic base grows. Heat, hills and fatigue move both, so
+     trust a trend over several weeks, not one session.
 3. If days remain in the current week and it has no saved plan, plan those days
    first as the current week's plan (workouts only from today on), then continue
    with the coming week. Each week is saved and pushed separately.

@@ -108,7 +108,7 @@ const server = new McpServer(
 
 server.registerTool("summary", {
   description:
-    "Fresh training summary from intervals.icu: readiness, fitness, VO2max and body weight against their goals, totals per sport for the last weeks and the finished months of the last year, recent activities, races, time off, planned workouts, saved plans of the last weeks compared with what was done, and coach workouts changed in the calendar since they were pushed.",
+    "Fresh training summary from intervals.icu: readiness, fitness, VO2max and body weight against their goals, totals per sport for the last weeks and the finished months of the last year, recent activities, races, time off, planned workouts, saved plans of the last weeks compared with what was done, and coach workouts changed in the calendar since they were pushed. Readiness includes the soreness, fatigue, stress, mood, motivation and injury scores the athlete entered in intervals.icu. Efficiency is grade-adjusted meters per heartbeat for runs and the power-to-heart-rate efficiency factor for rides; decoupling is the heart rate drift in percent. Sport totals average both over sessions with under five minutes in Z4 and above.",
   annotations: { readOnlyHint: true },
 }, async () => {
   const { readiness, goals } = await loadConfig(projectDir);

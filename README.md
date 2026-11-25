@@ -18,14 +18,14 @@ to your watch.
   calendar in intervals.icu, rules and goal numbers in `config.json`, and only
   what intervals.icu does not know in `profile.md`.
 
-| Tool           | What it does                                                                                                                               | Permission |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ---------- |
-| `summary`      | Readiness, fitness, VO2max, weight, weekly and monthly totals, races, time off, plan versus actual, coach workouts changed in the calendar | allowed    |
-| `save_plan`    | Validates a week plan and saves it only if it passes                                                                                       | allowed    |
-| `push_preview` | Shows the calendar changes for a saved plan                                                                                                | allowed    |
-| `push_apply`   | Applies exactly the previewed changes                                                                                                      | asks       |
-| `add_event`    | Adds a race or time off                                                                                                                    | asks       |
-| `remove_event` | Removes an event the coach created                                                                                                         | asks       |
+| Tool           | What it does                                                                                                                                                                      | Permission |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| `summary`      | Readiness, fitness, VO2max, weight, weekly and monthly totals, aerobic efficiency, races, time off, plan versus actual with time in zones, coach workouts changed in the calendar | allowed    |
+| `save_plan`    | Validates a week plan and saves it only if it passes                                                                                                                              | allowed    |
+| `push_preview` | Shows the calendar changes for a saved plan                                                                                                                                       | allowed    |
+| `push_apply`   | Applies exactly the previewed changes                                                                                                                                             | asks       |
+| `add_event`    | Adds a race or time off                                                                                                                                                           | asks       |
+| `remove_event` | Removes an event the coach created                                                                                                                                                | asks       |
 
 Skills: `/endurance-coach:weekly`, `/endurance-coach:today`,
 `/endurance-coach:replan`.
@@ -98,6 +98,7 @@ cannot.
 | `readiness.baselineDays`         | Days of history behind the HRV and resting HR baseline            |
 | `readiness.deviationSd`          | Standard deviations from baseline that raise a flag               |
 | `readiness.shortSleepHours`      | Sleep below this raises a flag                                    |
+| `readiness.subjectiveFlagFrom`   | Self-reported score (1 best to 4 worst) that raises a flag        |
 | `readiness.deepFatigueFormRatio` | Form (CTL minus ATL) relative to CTL that raises a flag           |
 | `readiness.fastWeightLossShare`  | Weekly weight loss as a share of body weight that raises a flag   |
 | `goals.vo2max`                   | Optional VO2max target, `summary` reports the distance to it      |
@@ -105,6 +106,10 @@ cannot.
 
 VO2max and weight are the values synced to intervals.icu wellness. Weight is
 read as a seven-day average.
+
+Soreness, fatigue, stress, mood, motivation and injury are the scores you enter
+in intervals.icu wellness. Each one at `subjectiveFlagFrom` or worse raises a
+readiness flag, the same as low HRV or short sleep.
 
 Run volume is capped by the same load ratio against your recent weekly run
 minutes. Limits are recomputed from fresh data on every save, so they grow as

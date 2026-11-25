@@ -15,6 +15,7 @@
     "baselineDays": 60,
     "deviationSd": 1,
     "shortSleepHours": 6,
+    "subjectiveFlagFrom": 3,
     "deepFatigueFormRatio": -0.3,
     "fastWeightLossShare": 0.01
   }

@@ -6,8 +6,10 @@ description: Daily check before training. Adjusts today's session to readiness. 
 # Today
 
 1. Call `summary`. Find today's session in `planned` and in `plan/<week>.json`.
-2. Ask how the athlete feels if they have not said: sleep, soreness, illness,
-   pain, stress.
+2. Read `rpe` and `feel` of the last sessions in `recent`: the athlete rates
+   them on the watch after each workout. Scores entered in intervals.icu
+   wellness are already in `readiness`. Ask only about what these leave out and
+   the athlete has not said: sleep, soreness, illness, pain, stress.
 3. Decide:
    - `green` and feeling fine: do the session as planned.
    - `yellow`, or green with a complaint: keep the duration, drop the intensity

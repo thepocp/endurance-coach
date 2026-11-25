@@ -1,17 +1,10 @@
 import type { PlanRules } from "./config.ts";
 import { addDays } from "./dates.ts";
 import type { Activity } from "./intervals.ts";
-import {
-  EASY_ZONES,
-  HARD_ZONE,
-  type Plan,
-  workoutSteps,
-  workoutTotals,
-} from "./plan.ts";
-import { sportOf } from "./summary.ts";
+import { EASY_ZONES, type Plan, workoutSteps, workoutTotals } from "./plan.ts";
+import { isHardActivity, sportOf } from "./summary.ts";
 
 const MIN_RUNS_FOR_LONG_RUN_SHARE = 3;
-const HARD_ACTIVITY_MIN_SECS = 300;
 // Lets an athlete with little or no recent history start from something.
 const FLOOR_WEEK_LOAD = 100;
 const FLOOR_RUN_MINUTES = 60;
@@ -74,7 +67,7 @@ export function completedTotals(activities: Activity[]): WeekTotals {
       secsIn(zoneSecs.slice(0, EASY_ZONES)) / 60,
     );
     totals.load += a.icu_training_load || 0;
-    if (secsIn(zoneSecs.slice(HARD_ZONE - 1)) >= HARD_ACTIVITY_MIN_SECS) {
+    if (isHardActivity(a)) {
       totals.hardWorkouts += 1;
     }
     if (sportOf(a.type) === "run") {

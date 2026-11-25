@@ -20,7 +20,14 @@ function history(todayRow: Partial<Wellness> | undefined): Wellness[] {
 
 Deno.test("normal night is green", () => {
   const r = assessReadiness(
-    history({ hrv: 60, restingHR: 52, sleepSecs: 8 * 3600, ctl: 30, atl: 32 }),
+    history({
+      hrv: 60,
+      restingHR: 52,
+      sleepSecs: 8 * 3600,
+      ctl: 30,
+      atl: 32,
+      soreness: 2,
+    }),
     TODAY,
     rules,
   );
@@ -45,6 +52,34 @@ Deno.test("suppressed HRV with elevated resting HR is red", () => {
   );
   assertEquals(r.status, "red");
   assertEquals(r.flags, ["hrv_low", "resting_hr_high"]);
+});
+
+Deno.test("self-reported scores from the threshold up raise flags", () => {
+  const r = assessReadiness(
+    history({
+      hrv: 60,
+      restingHR: 52,
+      sleepSecs: 8 * 3600,
+      ctl: 30,
+      atl: 32,
+      soreness: 3,
+      fatigue: 2,
+      mood: 4,
+    }),
+    TODAY,
+    rules,
+  );
+  assertEquals(r.status, "red");
+  assertEquals(r.flags, ["soreness_high", "mood_low"]);
+});
+
+Deno.test("no self-reported scores are reported as missing", () => {
+  const r = assessReadiness(
+    history({ hrv: 60, restingHR: 52, sleepSecs: 8 * 3600, ctl: 30, atl: 32 }),
+    TODAY,
+    rules,
+  );
+  assertEquals(r.missing, ["subjective_today"]);
 });
 
 Deno.test("no overnight data is unknown, not green", () => {

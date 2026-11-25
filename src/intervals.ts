@@ -29,6 +29,10 @@ const Activity = z.object({
   icu_rpe: z.number().nullish(),
   feel: z.number().nullish(),
   icu_hr_zone_times: z.array(z.number()).nullish(),
+  pace_zone_times: z.array(z.number()).nullish(),
+  gap: z.number().nullish(),
+  icu_efficiency_factor: z.number().nullish(),
+  decoupling: z.number().nullish(),
 });
 
 const Wellness = z.object({
@@ -42,6 +46,12 @@ const Wellness = z.object({
   sleepScore: z.number().nullish(),
   weight: z.number().nullish(),
   vo2max: z.number().nullish(),
+  soreness: z.number().nullish(),
+  fatigue: z.number().nullish(),
+  stress: z.number().nullish(),
+  mood: z.number().nullish(),
+  motivation: z.number().nullish(),
+  injury: z.number().nullish(),
 });
 
 const Event = z.object({
